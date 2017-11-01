@@ -7,7 +7,6 @@ var Module = Arrow.API.extend({
 	path: '/api/user/current',
 	method: 'GET',
 	description: 'Get current user details, by API key',
-	model: 'reducedUser',
 	action: function (req, resp, next) {
 		var nextBase = {
 			next: next, 
@@ -62,7 +61,6 @@ function addRoles(details) {
 		deferred.reject({ success: false, status: 422, caller: 'user.js>addRoles', data: 'userId is undefined' });
 		return deferred.promise;
 	}
-
 	userroleModel.query({ userId: details.userId }, function(err, userroleresults) {
 		if (err) {
 			deferred.reject({ success: false, status: 500, caller: 'user.js>addRoles', data: err });
@@ -78,7 +76,6 @@ function addRoles(details) {
 		details.roles = userroleresults;
 
 		deferred.resolve({ success: true, status: 200, caller: 'user.js>addRoles', data: details });
-
 	});
 
 	return deferred.promise;

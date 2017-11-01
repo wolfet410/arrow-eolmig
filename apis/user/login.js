@@ -42,26 +42,9 @@ var login = Arrow.API.extend({
 
 				// Verifying profile pre-req's have been met
 				req.headers['x-api-key'] = clientApikey.data;
-				return twarrow.Api.getPlayerCoachId(req, 'unknown');
-			})
-			.then(function(getPlayerCoachIdResults) {
-				var deferred = Q.defer();
-				if (getPlayerCoachIdResults.data.type === 'player') {
-						var playerId = getPlayerCoachIdResults.data.id;
-						requiredStatsPopulated(playerId)
-							.then(function(requiredStatsPopulatedResult) {
-								twarrow.Common.nextSuccess(nextBase, { success: true, status: 200, caller: 'login.js>action',
-									data: { clientapikey: clientApikey.data, requiredStatsPopulated: requiredStatsPopulatedResult.data } });
-								return;
-							})
-							.done(null, function(err) {
-								throw err;
-							});
-				} else {
-					twarrow.Common.nextSuccess(nextBase, { success: true, status: 200, caller: 'login.js>action',
+				twarrow.Common.nextSuccess(nextBase, { success: true, status: 200, caller: 'login.js>action',
 						data: { clientapikey: clientApikey.data } });
-					return;
-				}
+				return;
 			})
 			.done(null, function(err) {
 				twarrow.Common.nextFail(nextBase, err);

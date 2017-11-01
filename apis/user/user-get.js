@@ -1,3 +1,5 @@
+// I don't remember why I'd use this, use /user/current instead!
+
 var Arrow = require('arrow'),
 	Q = require('q'),
 	twarrow = require('twarrow');	
