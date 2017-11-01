@@ -44,9 +44,6 @@ function continueUserDetails(user, resp, next) {
 		.then(function(user) {
 			return Dtcarrow.RoleRelationship.read(user[0]);
 		})
-		.then(function(user) {
-			return Dtcarrow.AdminCoachPlayer.read(user);
-		}) 
 		.then(function(details) {
 			Dtcarrow.Common.nextSuccess(next, resp, 200, details);
 		})

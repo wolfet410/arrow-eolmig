@@ -37,14 +37,11 @@ var Module = Arrow.API.extend({
 				return addRoles(getDetailsResult.data);
 			})
 			.then(function(addRolesResult) {
-				return Dtcarrow.AdminCoachPlayer.read(addRolesResult.data);
-			})
-			.then(function(readResult) {
-				// Add the expiration to the user (readResult)
-				readResult.data.expiration = decryptResults.data.expiration;
+				// Add the expiration to the user 
+				addRolesResult.data.expiration = decryptResults.data.expiration;
 
 				nextOutput.status = 200;
-				nextOutput.data = readResult.data;
+				nextOutput.data = addRolesResult.data;
 
 				Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
 				return;
