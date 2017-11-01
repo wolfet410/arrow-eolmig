@@ -1,5 +1,5 @@
 var Arrow = require('arrow'),
-	Dtcarrow = require('dtcarrow'),
+	twarrow = require('twarrow'),
 	Q = require('q');
 
 var Module = Arrow.API.extend({
@@ -20,28 +20,28 @@ var Module = Arrow.API.extend({
 			caller: 'activate-get.js>action'
 		}
 
-		var activatekeyobject = Dtcarrow.Api.decryptClientApikey(req.params.clientactivatekey);
+		var activatekeyobject = twarrow.Api.decryptClientApikey(req.params.clientactivatekey);
 		if (!activatekeyobject.success) {
 			// This API always returns 20x success, so it doesnt block the resolver from loading
 			activatekeyobject.status = 204;
 			activatekeyobject.success = false;
 			activatekeyobject.caller = nextOutput.caller + '>' + activatekeyobject.caller;
-			Dtcarrow.Common.nextFail(nextBase, activatekeyobject);
+			twarrow.Common.nextFail(nextBase, activatekeyobject);
 		}
 
-		if (!Dtcarrow.Api.testExpiration(activatekeyobject.data.expiration)) {
+		if (!twarrow.Api.testExpiration(activatekeyobject.data.expiration)) {
 			// This API always returns 20x success, so it doesnt block the resolver from loading
 			nextOutput.status = 204;
 			nextOutput.success = false;
 			nextOutput.data = { message: 'expired activate key', expired: true };
-			Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+			twarrow.Common.nextSuccess(nextBase, nextOutput);
 			return;
 		}
 		
  		var user = getUserByActivatekey(activatekeyobject.data.apikey)
  			.done(function(getUserByActivatekeyResult) {
  				getUserByActivatekeyResult.caller = nextOutput.caller + '>' + getUserByActivatekey.caller + '>getUserByActivatekeyResult';
- 				Dtcarrow.Common.nextSuccess(nextBase, getUserByActivatekeyResult);
+ 				twarrow.Common.nextSuccess(nextBase, getUserByActivatekeyResult);
  				return;
  			}, function(err) {
  				// This API always returns 20x success, so it doesnt block the resolver from loading
@@ -49,8 +49,8 @@ var Module = Arrow.API.extend({
  				err.success = false;
  				err.data = { message: err, expired: true };
  				err.caller = nextOutput.caller + '>' + err.caller + '>fail';
- 				Dtcarrow.Common.warn(err.caller + ':' + err);
- 				Dtcarrow.Common.nextSuccess(nextBase, err);
+ 				twarrow.Common.warn(err.caller + ':' + err);
+ 				twarrow.Common.nextSuccess(nextBase, err);
  				return;
  			})
 	}

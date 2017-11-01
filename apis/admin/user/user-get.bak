@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');	
+	twarrow = require('twarrow');	
 
 var Module = Arrow.API.extend({
 	group: 'admin',
@@ -16,11 +16,11 @@ var Module = Arrow.API.extend({
 			caller: 'user-get.js>action'
 		}
 
-		Dtcarrow.User.readAll()
+		twarrow.User.readAll()
 			.then(function(readAllResult) {
 				var promises = [];
 				readAllResult.data.forEach(function(user) {
-					promises.push(Dtcarrow.RoleRelationship.read(user));
+					promises.push(twarrow.RoleRelationship.read(user));
 				});
 				
 				return Q.all(promises);
@@ -34,11 +34,11 @@ var Module = Arrow.API.extend({
 				nextOutput.status = 200;
 				nextOutput.caller += '>promisesResult'
 				nextOutput.data = outputs;
-				Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+				twarrow.Common.nextSuccess(nextBase, nextOutput);
 			})
 			.done(null, function(err) {
 				err.caller = nextOutput.caller + '>' + err.caller + '>fail';
-				Dtcarrow.Common.nextFail(nextBase, err);
+				twarrow.Common.nextFail(nextBase, err);
 			});
 	}
 });

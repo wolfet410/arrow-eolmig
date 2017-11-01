@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');	
+	twarrow = require('twarrow');	
 
 var Module = Arrow.API.extend({
 	group: 'user',
@@ -21,18 +21,18 @@ var Module = Arrow.API.extend({
 		if (typeof clientapikey === 'undefined') {
 			nextOutput.status = 403;
 			nextOutput.data = 'Missing clientapikey, user is likely not logged in';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 		
-		var decryptResults = Dtcarrow.Api.decryptClientApikey(clientapikey);
+		var decryptResults = twarrow.Api.decryptClientApikey(clientapikey);
 		if (decryptResults.success !== true) {
 			// There was an error decrypting the client apikey, return the error message back to the callback
-			Dtcarrow.Common.nextFail(nextBase, decryptResults);
+			twarrow.Common.nextFail(nextBase, decryptResults);
 			return;
 		}
 
-		Dtcarrow.User.getDetails(req, decryptResults.data)
+		twarrow.User.getDetails(req, decryptResults.data)
 			.then(function(getDetailsResult) {
 				return addRoles(getDetailsResult.data);
 			})
@@ -43,11 +43,11 @@ var Module = Arrow.API.extend({
 				nextOutput.status = 200;
 				nextOutput.data = addRolesResult.data;
 
-				Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+				twarrow.Common.nextSuccess(nextBase, nextOutput);
 				return;
 			})
 			.done(null, function(err) {
-				Dtcarrow.Common.nextFail(nextBase, err);
+				twarrow.Common.nextFail(nextBase, err);
 			});
 	}
 });

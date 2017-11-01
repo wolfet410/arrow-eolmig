@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');
+	twarrow = require('twarrow');
 
 var login = Arrow.API.extend({
 	group: 'user',
@@ -26,14 +26,14 @@ var login = Arrow.API.extend({
 			
 			nextOutput.status = 422;
 			nextOutput.data = 'Empty or not enough characters in email or password';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 
 		var clientApikey;
-		Dtcarrow.Password.authenticate(req.params.email, req.params.password)
+		twarrow.Password.authenticate(req.params.email, req.params.password)
 			.then(function(authenticateResult) {
-			 	clientApikey = Dtcarrow.Api.encryptApikey(authenticateResult.data[0].apikey, 12);
+			 	clientApikey = twarrow.Api.encryptApikey(authenticateResult.data[0].apikey, 12);
 
 				if (typeof clientApikey === 'undefined' || clientApikey.length < 64) {
 					throw { success: false, status: 500, caller: nextOutput.caller + '>authenticateResult', 
@@ -42,7 +42,7 @@ var login = Arrow.API.extend({
 
 				// Verifying profile pre-req's have been met
 				req.headers['x-api-key'] = clientApikey.data;
-				return Dtcarrow.Api.getPlayerCoachId(req, 'unknown');
+				return twarrow.Api.getPlayerCoachId(req, 'unknown');
 			})
 			.then(function(getPlayerCoachIdResults) {
 				var deferred = Q.defer();
@@ -50,7 +50,7 @@ var login = Arrow.API.extend({
 						var playerId = getPlayerCoachIdResults.data.id;
 						requiredStatsPopulated(playerId)
 							.then(function(requiredStatsPopulatedResult) {
-								Dtcarrow.Common.nextSuccess(nextBase, { success: true, status: 200, caller: 'login.js>action',
+								twarrow.Common.nextSuccess(nextBase, { success: true, status: 200, caller: 'login.js>action',
 									data: { clientapikey: clientApikey.data, requiredStatsPopulated: requiredStatsPopulatedResult.data } });
 								return;
 							})
@@ -58,13 +58,13 @@ var login = Arrow.API.extend({
 								throw err;
 							});
 				} else {
-					Dtcarrow.Common.nextSuccess(nextBase, { success: true, status: 200, caller: 'login.js>action',
+					twarrow.Common.nextSuccess(nextBase, { success: true, status: 200, caller: 'login.js>action',
 						data: { clientapikey: clientApikey.data } });
 					return;
 				}
 			})
 			.done(null, function(err) {
-				Dtcarrow.Common.nextFail(nextBase, err);
+				twarrow.Common.nextFail(nextBase, err);
 			});
 
 		return;
@@ -78,10 +78,10 @@ function requiredStatsPopulated(playerId) {
 
 	// Parse stats for required === true
 	var statisticReadAllResult;
-	Dtcarrow.Statistic.readAll(true)
+	twarrow.Statistic.readAll(true)
 		.then(function(readAllResult) {
 			statisticReadAllResult = readAllResult; // Storing for parsing later
-			return Dtcarrow.Player.read(playerId);
+			return twarrow.Player.read(playerId);
 		})
 		.then(function(playerReadResult) {
 			deferred.resolve({ success: true, status: 200, caller: '>requiredStatsPopulated', data: playerReadResult.data });

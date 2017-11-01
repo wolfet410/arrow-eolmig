@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow'); 
+	twarrow = require('twarrow'); 
 
 var Module = Arrow.API.extend({
 	group: 'user',
@@ -22,18 +22,18 @@ var Module = Arrow.API.extend({
 			caller: 'activate-post.js>action'
 		}
 
-		var activatekeyobject = Dtcarrow.Api.decryptClientApikey(req.params.clientactivatekey);
+		var activatekeyobject = twarrow.Api.decryptClientApikey(req.params.clientactivatekey);
 
 		if (!activatekeyobject.success) {
 			activatekeyobject.caller = nextOutput.caller + '>' + activatekeyobject.caller;
-			Dtcarrow.Common.nextFail(nextBase, activatekeyobject);
+			twarrow.Common.nextFail(nextBase, activatekeyobject);
 			return;
 		}
 
-		if (!Dtcarrow.Api.testExpiration(activatekeyobject.data.expiration)) {
+		if (!twarrow.Api.testExpiration(activatekeyobject.data.expiration)) {
 			nextOutput.status = 422;
 			nextOutput.data = 'clientactivatekey has expired';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 
@@ -45,20 +45,20 @@ var Module = Arrow.API.extend({
 				nextOutput.status = 500;
 				nextOutput.caller += '>query';
 				nextOutput.data = err;
-				Dtcarrow.Common.nextFail(nextBase, nextOutput);
+				twarrow.Common.nextFail(nextBase, nextOutput);
 				return;
 			}
 
 			if (typeof results !== 'undefined' && results.length > 0) {
 				var user = results[0];
-				Dtcarrow.Password.updatePassword(user.userId, req.params.newpassword)
+				twarrow.Password.updatePassword(user.userId, req.params.newpassword)
 					.then(function(updatePasswordResult) {
 console.warn('1');
 console.warn(updatePasswordResult);
 						if (updatePasswordResult.success) {
 							// Enable the account
 							user.enabled = true;
-							return Dtcarrow.User.update(user);
+							return twarrow.User.update(user);
 						} else {
 							var err = {
 								status: 422,
@@ -75,7 +75,7 @@ console.warn(userUpdateResult);
 							nextOutput.status = 200;
 							nextOutput.caller += '>userUpdateResult';
 							nextOutput.data = 'Password change successful';
-							Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+							twarrow.Common.nextSuccess(nextBase, nextOutput);
 						} else {
 							userUpdateResult.caller += '>userUpdateResult';
 							throw userUpdateResult;
@@ -85,14 +85,14 @@ console.warn(userUpdateResult);
 console.warn('3');
 console.warn(err);
 						err.caller = nextOutput.caller + '>' + err.caller + '>fail';
-						Dtcarrow.Common.nextFail(nextBase, err);
+						twarrow.Common.nextFail(nextBase, err);
 					});
 			} else {
 				nextOutput.status = 422;
 				nextOutput.caller += '>queryresults';
 				nextOutput.data = 'Could not find the user associated with the given activatekey';
-				Dtcarrow.Common.warn(nextOutput.caller + ':Could not find the user associated with the given activatekey');
-				Dtcarrow.Common.nextFail(nextBase, nextOutput);
+				twarrow.Common.warn(nextOutput.caller + ':Could not find the user associated with the given activatekey');
+				twarrow.Common.nextFail(nextBase, nextOutput);
 			}
 		});
 	}

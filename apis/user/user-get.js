@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');	
+	twarrow = require('twarrow');	
 
 var Module = Arrow.API.extend({
 	group: 'user',
@@ -17,20 +17,20 @@ var Module = Arrow.API.extend({
 			caller: 'user-get.js>action'
 		}
 
-		Dtcarrow.Api.getUserDetails(req)
+		twarrow.Api.getUserDetails(req)
 			.then(function(getUserDetailsResult) {
 				if (typeof getUserDetailsResult.data.reduceduser === 'undefined') {
 					nextOutput.status = 422;
 					nextOutput.success = false;
 					nextOutput.caller += '>getUserDetailsResult';
 					nextOutput.data = 'getUserDetails missing results';
-					Dtcarrow.Common.nextFail(nextBase, nextOutput);
+					twarrow.Common.nextFail(nextBase, nextOutput);
 					return;
 				} else {
 					return continueUserDetails(getUserDetailsResult.data.reduceduser, resp, next);
 				}
 				var user = results.reduceduser;
-				Dtcarrow.User.read(req.params.userId);
+				twarrow.User.read(req.params.userId);
 			})
 			.fail(function(err) {
 				console.warn(err);
@@ -40,16 +40,16 @@ var Module = Arrow.API.extend({
 
 // Internal functions
 function continueUserDetails(user, resp, next) {
-	Dtcarrow.User.read(user.userId)
+	twarrow.User.read(user.userId)
 		.then(function(user) {
-			return Dtcarrow.RoleRelationship.read(user[0]);
+			return twarrow.RoleRelationship.read(user[0]);
 		})
 		.then(function(details) {
-			Dtcarrow.Common.nextSuccess(next, resp, 200, details);
+			twarrow.Common.nextSuccess(next, resp, 200, details);
 		})
 		.fail(function(err) {
-			Dtcarrow.Common.log(err.message);
-			Dtcarrow.Common.nextFail(next, resp, err.status, err.message);
+			twarrow.Common.log(err.message);
+			twarrow.Common.nextFail(next, resp, err.status, err.message);
 		});
 }
  

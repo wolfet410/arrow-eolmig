@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');	
+	twarrow = require('twarrow');	
 
 var Module = Arrow.API.extend({
 	group: 'admin',
@@ -20,20 +20,20 @@ var Module = Arrow.API.extend({
 			caller: 'userid-get.js>action'
 		}
 
-		Dtcarrow.User.read (req.params.userId)
+		twarrow.User.read (req.params.userId)
 			.then(function(userReadResult) {
-				return Dtcarrow.RoleRelationship.read(userReadResult.data[0]);
+				return twarrow.RoleRelationship.read(userReadResult.data[0]);
 			})
 			.then(function(rrReadResult) {
-				return Dtcarrow.AdminCoachPlayer.read(rrReadResult.data);
+				return twarrow.AdminCoachPlayer.read(rrReadResult.data);
 			}) 
 			.then(function(acpReadResult) {
 				acpReadResult.caller += '>acpReadResult';
-				Dtcarrow.Common.nextSuccess(nextBase, acpReadResult);
+				twarrow.Common.nextSuccess(nextBase, acpReadResult);
 			})
 			.fail(function(err) {
 				err.caller = nextOutput.caller + '>' + err.caller + '>fail';
-				Dtcarrow.Common.nextFail(nextBase, err);
+				twarrow.Common.nextFail(nextBase, err);
 			});
 	}
 });  

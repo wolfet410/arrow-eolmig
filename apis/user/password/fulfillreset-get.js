@@ -1,5 +1,5 @@
 var Arrow = require('arrow'),
-	Dtcarrow = require('dtcarrow'),
+	twarrow = require('twarrow'),
 	Q = require('q');
 
 var Module = Arrow.API.extend({
@@ -20,36 +20,36 @@ var Module = Arrow.API.extend({
 			caller: 'fulfillreset-get.js>action'
 		}
 
-		var decryptClientApikeyResult = Dtcarrow.Api.decryptClientApikey(req.params.clientresetkey);
+		var decryptClientApikeyResult = twarrow.Api.decryptClientApikey(req.params.clientresetkey);
 
 		if (!decryptClientApikeyResult.success) {
 			nextOutput.status = 204;
 			nextOutput.success = false;
 			nextOutput.caller += '>decryptClientApikeyResult';
 			nextOutput.data = 'Problems decrypting clientApikey';
-			Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+			twarrow.Common.nextSuccess(nextBase, nextOutput);
 			return;
 		}
 
-		if (!Dtcarrow.Api.testExpiration(decryptClientApikeyResult.data.expiration)) {
+		if (!twarrow.Api.testExpiration(decryptClientApikeyResult.data.expiration)) {
 			nextOutput.status = 204;
 			nextOutput.success = false;
 			nextOutput.caller += '>testExpirationResult';
 			nextOutput.data = { message: 'expired resetkey', expired: true };
-			Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+			twarrow.Common.nextSuccess(nextBase, nextOutput);
 			return;
 		}
 		
  		getUserByResetkey(decryptClientApikeyResult.data.apikey)
  			.done(function(getUserByResetkeyResult) {
  				getUserByResetkeyResult.caller = nextOutput.caller + '>' + getUserByResetkeyResult.caller + '>getUserByResetkeyResult';
- 				Dtcarrow.Common.nextSuccess(nextBase, getUserByResetkeyResult);
+ 				twarrow.Common.nextSuccess(nextBase, getUserByResetkeyResult);
  			}, function(err) {
  				// This API always returns 20x success, so it doesnt block the resolver from loading
 				err.status = 204;
 				err.success = false;
 				err.caller = nextOutput.caller + '>' + err.caller + '>getUserByResetkey>fail';
- 				Dtcarrow.Common.nextSuccess(nextBase, err);
+ 				twarrow.Common.nextSuccess(nextBase, err);
  			})
 	}
 });

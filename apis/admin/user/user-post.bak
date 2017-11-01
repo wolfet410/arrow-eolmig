@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');	
+	twarrow = require('twarrow');	
 
 var Module = Arrow.API.extend({
 	group: 'admin',
@@ -34,7 +34,7 @@ var Module = Arrow.API.extend({
 			nextOutput.status = 422;
 			nextOutput.data = 'Incorrect type, must be one of "Coach", "Player", or "Admin" '
 				+ '- note the values are case-sensitive';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 
@@ -42,27 +42,27 @@ var Module = Arrow.API.extend({
 			nextOutput.status = 422;
 			nextOutput.data = 'No roles selected, users cannot be created without roles '
 				+ 'assocated with either Admin, Coach, or Player';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 
-		var password = Dtcarrow.Password.randomPassword();
+		var password = twarrow.Password.randomPassword();
 	    if (password.data.hash.length < 48) {
 			nextOutput.status = 422;
 			nextOutput.data = 'Password hash length too short';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 	        return;
 	    }
 
-	    var apikey = Dtcarrow.Password.newApikey();
+	    var apikey = twarrow.Password.newApikey();
 	    if (!apikey.success || apikey.data.length < 32) {
 			nextOutput.status = 422;
 			nextOutput.data = 'Problems creating newApikey';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 	        return;
 	    }
 
-		Dtcarrow.User.emailExists(req.params.email)
+		twarrow.User.emailExists(req.params.email)
 			.then(function(emailExistsResult) {
 				if (emailExistsResult.data !== false) {
 					emailExistsResult.caller =  emailExistsResult.caller + '>emailExistsResult';
@@ -80,7 +80,7 @@ var Module = Arrow.API.extend({
 			})
 			.done(null, function(err) {
 				err.caller = nextOutput.caller + '>' + err.caller + '>fail';
-				Dtcarrow.Common.nextFail(nextBase, err);
+				twarrow.Common.nextFail(nextBase, err);
 			});
 	}
 });
@@ -95,12 +95,12 @@ function createUser(newUser, next, resp) {
 		caller: 'user-post.js>createUser'
 	}
 
-	Dtcarrow.User.create(newUser)
+	twarrow.User.create(newUser)
 		.then(function(userCreateResult) {
-			return Dtcarrow.AdminCoachPlayer.create(userCreateResult.data.id, newUser);
+			return twarrow.AdminCoachPlayer.create(userCreateResult.data.id, newUser);
 		})
 		.then(function(acpCreateResult) {
-			return Dtcarrow.RoleRelationship.create(acpCreateResult.data);
+			return twarrow.RoleRelationship.create(acpCreateResult.data);
 		})
 		.then(function(rrCreateResult) {
 			var subject = 'Welcome to Tipped Sports Recruiting!',
@@ -108,7 +108,7 @@ function createUser(newUser, next, resp) {
 					 + '<p>Your password is <span color="red">'
 					 + newUser.password.password
 					 + '</span></p>';
-			return Dtcarrow.Common.sendEmail(rrCreateResult.data.email, subject, body);
+			return twarrow.Common.sendEmail(rrCreateResult.data.email, subject, body);
 		})
 		.then(function(sendEmailResult) {
 			nextOutput.status = 201;
@@ -116,11 +116,11 @@ function createUser(newUser, next, resp) {
 			
 			// User object is too difficult to send back right now
 			nextOutput.data = 'User created';
-			Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+			twarrow.Common.nextSuccess(nextBase, nextOutput);
 		})
 		.done(null, function(err) {
 			err.caller = nextOutput.caller + '>createUser>' + err.caller + '>fail';
-			Dtcarrow.Common.nextFail(nextBase, err);
+			twarrow.Common.nextFail(nextBase, err);
 		});
 }
 

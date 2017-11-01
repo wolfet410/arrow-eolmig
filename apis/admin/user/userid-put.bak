@@ -4,7 +4,7 @@
 
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');
+	twarrow = require('twarrow');
 
 var Module = Arrow.API.extend({
 	group: 'admin',
@@ -40,7 +40,7 @@ var Module = Arrow.API.extend({
 			nextOutput.status = 422;
 			nextOutput.data = 'Incorrect type, must be one of "Coach", "Player", or "Admin" '
 				+ '- note the values are case-sensitive';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 
@@ -48,11 +48,11 @@ var Module = Arrow.API.extend({
 			nextOutput.status = 422;
 			nextOutput.data = 'No roles selected, users cannot be created without roles '
 				+ 'assocated with either Admin, Coach, or Player';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 
-		var userExistsPromise = Dtcarrow.User.userExists(req.params.userId);
+		var userExistsPromise = twarrow.User.userExists(req.params.userId);
 		var checkEmailPromise = checkEmail(req.params.userId, req.params.email);
 
 		Q.spread([userExistsPromise, checkEmailPromise], function(u, e) {
@@ -64,20 +64,20 @@ var Module = Arrow.API.extend({
 					nextOutput.status = 422;
 					nextOutput.caller += '>userExistsPromise';
 					nextOutput.data = 'userId does not exist in User table';
-					Dtcarrow.Common.nextFail(nextBase, nextOutput);
+					twarrow.Common.nextFail(nextBase, nextOutput);
 					return;
 				}
 				if (!e.data) {
 					nextOutput.status = 409;
 					nextOutput.caller += '>emailExistsPromise';
 					nextOutput.data = 'New email address already exists in the User table';
-					Dtcarrow.Common.nextFail(nextBase, nextOutput);
+					twarrow.Common.nextFail(nextBase, nextOutput);
 				}
 			}
 		})
 		.done(null, function(err) {
 			err.caller = nextOutput.caller + '>' + err.caller + '>spread>fail';
-			Dtcarrow.Common.nextFail(nextBase, err);
+			twarrow.Common.nextFail(nextBase, err);
 		});
 	}
 });
@@ -102,7 +102,7 @@ function checkEmail(userId, newEmail) {
 			deferred.resolve({ success: true, status: 200, caller: 'userid-put.js>checkEmail',
                 data: true });
 		} else {
-			Dtcarrow.User.emailExists(newEmail)
+			twarrow.User.emailExists(newEmail)
 				.done(function(emailExistsResult) {
 					// If the email address exists, we want checkEmail to respond with a false
 					// to alert the caller that we cannot continue
@@ -125,26 +125,26 @@ function checkEmail(userId, newEmail) {
 }
 
 function manageUpdateUser(params, resp, next) {
-	Dtcarrow.User.update(params)
+	twarrow.User.update(params)
 		.then(function(user) {
-			return Dtcarrow.AdminCoachPlayer.update(user.data);
+			return twarrow.AdminCoachPlayer.update(user.data);
 		})
 		.then(function(user) {
-			return Dtcarrow.RoleRelationship.delete(user.data);
+			return twarrow.RoleRelationship.delete(user.data);
 		})
 		.then(function(user) {
-			return Dtcarrow.RoleRelationship.create(user.data);
+			return twarrow.RoleRelationship.create(user.data);
 		})
 		.then(function(user) {
 			nextOutput.status = 204;
 			nextOutput.caller += '>manageUpdateUser>rrCreateResult';
 			nextOutput.data = 'User successfully edited';
-			Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+			twarrow.Common.nextSuccess(nextBase, nextOutput);
 			return;
 		})
 		.done(null, function(err) {
 			err.caller = nextOutput.caller + '>' + err.caller + '>manageUpdateUser>fail';
-			Dtcarrow.Common.nextFail(nextBase, err);
+			twarrow.Common.nextFail(nextBase, err);
 		});
 }
 

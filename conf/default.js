@@ -29,7 +29,7 @@ module.exports = {
 	// usename is the key and the password is blank.  the other option is 'apikey' where the value of the
 	// APIKey header is the value of the key.  you can also set this to 'plugin' and define the key 'APIKeyAuthPlugin'
 	// which points to a file or a module that implements the authentication strategy
-	APIKeyAuthType: 'basic',
+	APIKeyAuthType: 'apikey',
 
 	// The number of milliseconds before timing out a request to the server.
 	timeout: 120000,
@@ -70,7 +70,6 @@ module.exports = {
 		// server. IP ranges can also be specified. e.g. [ 'localhost', '192.168.1.0/24', '10.1.1.1' ]
 		// An empty list [] will allow unrestricted access, though this is not recommended due to security concerns.
 		allowedHosts: [
-			'localhost'
 		],
 		// set the email addresses you want to be able to log in to the admin website
 		validEmails: ["twolfe@datatechcafe.com"],

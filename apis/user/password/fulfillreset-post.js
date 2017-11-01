@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow'); 
+	twarrow = require('twarrow'); 
 
 var Module = Arrow.API.extend({
 	group: 'user',
@@ -22,23 +22,23 @@ var Module = Arrow.API.extend({
 		}
 
 		// Pull the apikey out of the clientResetkey
-		var decryptClientApikeyResult = Dtcarrow.Api.decryptClientApikey(req.params.clientresetkey);
+		var decryptClientApikeyResult = twarrow.Api.decryptClientApikey(req.params.clientresetkey);
 
 		if (!decryptClientApikeyResult.success) {
 			nextOutput.status = 500;
 			nextOutput.success = false;
 			nextOutput.caller += '>decryptClientApikeyResult';
 			nextOutput.data = 'Problems decrypting clientApikey';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 
-		if (!Dtcarrow.Api.testExpiration(decryptClientApikeyResult.data.expiration)) {
+		if (!twarrow.Api.testExpiration(decryptClientApikeyResult.data.expiration)) {
 			nextOutput.status = 401;
 			nextOutput.success = false;
 			nextOutput.caller += '>testExpirationResult';
 			nextOutput.data = 'clientresetkey has expired';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 			return;
 		}
 
@@ -53,24 +53,24 @@ var Module = Arrow.API.extend({
 
 			if (typeof user !== 'undefined' && user.length > 0) {
 				// Good user, update password
-				Dtcarrow.Password.updatePassword(user[0].userId, req.params.newpassword)
+				twarrow.Password.updatePassword(user[0].userId, req.params.newpassword)
 					.then(function(updatePasswordResult) {
 						nextOutput.status = 200;
 						nextOutput.success = true;
 						nextOutput.caller += '>updatePasswordResult';
 						nextOutput.data = 'Password change successful';
-						Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+						twarrow.Common.nextSuccess(nextBase, nextOutput);
 					})
 					.done(null, function(err) {
 						err.caller = nextOutput.caller + '>' + err.caller + '>fail';
-						Dtcarrow.Common.nextFail(nextBase, err);
+						twarrow.Common.nextFail(nextBase, err);
 					});
 			} else {
-				Dtcarrow.Common.warn('fulfillreset-post.js, could not find the user associated with the given resetkey');
+				twarrow.Common.warn('fulfillreset-post.js, could not find the user associated with the given resetkey');
 				nextOutput.status = 401;
 				nextOutput.success = false;
 				nextOutput.data = 'Could not find the user associated with the given resetkey';
-				Dtcarrow.Common.nextFail(nextBase, nextOutput);
+				twarrow.Common.nextFail(nextBase, nextOutput);
 			}
 		});
 	}

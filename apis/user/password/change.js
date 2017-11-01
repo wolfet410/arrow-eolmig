@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');
+	twarrow = require('twarrow');
 
 var Module = Arrow.API.extend({
 	group: 'user',
@@ -27,10 +27,10 @@ var Module = Arrow.API.extend({
 
 		// Get the apikey of the email & (old) password combo entered into the change password
 		// form
-		var passwordAuthResult = Dtcarrow.Password.authenticate(req.params.email, req.params.oldpassword);
+		var passwordAuthResult = twarrow.Password.authenticate(req.params.email, req.params.oldpassword);
 
 		// Pull the apikey out of the clientApikey in the x-api-key header
-		var decryptClientApikeyResult = Dtcarrow.Api.decryptClientApikey(req.headers['x-api-key']);
+		var decryptClientApikeyResult = twarrow.Api.decryptClientApikey(req.headers['x-api-key']);
 
 		Q.spread([passwordAuthResult, decryptClientApikeyResult], function(passwordAuthResult, decryptClientApikeyResult) {
 			if (!passwordAuthResult.success || typeof passwordAuthResult.data[0].apikey === 'undefined') {
@@ -39,17 +39,17 @@ var Module = Arrow.API.extend({
 
 			var user = passwordAuthResult.data[0];
 			if (user.apikey === decryptClientApikeyResult.data.apikey) {
-				Dtcarrow.Password.updatePassword(user.userId, req.params.newpassword)
+				twarrow.Password.updatePassword(user.userId, req.params.newpassword)
 					.then(function(updatePasswordResult) {
 						nextOutput.status = 200;
 						nextOutput.caller += 'updatePasswordResult';
 						nextOutput.data = 'Password change successful';
 						nextOutput.success = true;
-						Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+						twarrow.Common.nextSuccess(nextBase, nextOutput);
 					})
 					.fail(function(err) {
 						err.caller = nextOutput.caller + '>' + err.caller + '>updatePasswordResult';
-						Dtcarrow.Common.nextFail(nextBase, err);
+						twarrow.Common.nextFail(nextBase, err);
 					});
 			} else {
 				err = {
@@ -63,7 +63,7 @@ var Module = Arrow.API.extend({
 		})
 		.done(null, function(err) {
 			err.caller = nextOutput.caller + '>' + err.caller + '>fail';
-			Dtcarrow.Common.nextFail(nextBase, err);
+			twarrow.Common.nextFail(nextBase, err);
 		});
 	}
 });

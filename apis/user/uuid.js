@@ -1,5 +1,5 @@
 var Arrow = require('arrow'),
-	Dtcarrow = require('dtcarrow');
+	twarrow = require('twarrow');
 
 var Module = Arrow.API.extend({
 	group: 'user',
@@ -14,19 +14,19 @@ var Module = Arrow.API.extend({
 		var nextOutput = {
 			caller: 'uuid.js>action'
 		}
-		var newApikeyResult = Dtcarrow.Password.newApikey();
+		var newApikeyResult = twarrow.Password.newApikey();
 		if (!newApikeyResult.success || newApikeyResult.data.length < 32) {
 			nextOutput.success = false;
 			nextOutput.caller += 'newApikeyResult';
 			nextOutput.status = 500;
 			nextOutput.data = 'Problems creating UUID';
-			Dtcarrow.Common.nextFail(nextBase, nextOutput);
+			twarrow.Common.nextFail(nextBase, nextOutput);
 		} else {
 			nextOutput.success = true;
 			nextOutput.caller += 'newApikeyResult';
 			nextOutput.status = 200;
 			nextOutput.data = { uuid: newApikeyResult.data };
-			Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+			twarrow.Common.nextSuccess(nextBase, nextOutput);
 		}
 	}
 });

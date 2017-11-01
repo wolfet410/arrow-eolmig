@@ -1,5 +1,5 @@
 var Arrow = require('arrow'),
-	Dtcarrow = require('dtcarrow'),
+	twarrow = require('twarrow'),
 	Q = require('q');
 
 var Module = Arrow.API.extend({
@@ -24,7 +24,7 @@ var Module = Arrow.API.extend({
 			caller: 'requestreset.js>action'
 		}
 
-		Dtcarrow.User.emailExists(req.params.email)
+		twarrow.User.emailExists(req.params.email)
 			.then(function(emailExistsResult) {
 				// Bounce out with success if email address doesn't exist
 				// Success to mask which email addresses are valid
@@ -33,8 +33,8 @@ var Module = Arrow.API.extend({
 					nextOutput.status = 204;
 					nextOutput.data = 'Password reset request accepted';
 					// Success to mask valid vs invalid email addresses
-					Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
-					Dtcarrow.Common.log('emailExists returned false for ' + req.params.email);
+					twarrow.Common.nextSuccess(nextBase, nextOutput);
+					twarrow.Common.log('emailExists returned false for ' + req.params.email);
 					throw { hideError: true }
 				}
 
@@ -45,7 +45,7 @@ var Module = Arrow.API.extend({
 							nextOutput.status = 204;
 							nextOutput.caller += '>emailExistsResult>handleResetRequestResult'
 							nextOutput.data = 'Password reset request accepted';
-							Dtcarrow.Common.nextSuccess(nextBase, nextOutput);
+							twarrow.Common.nextSuccess(nextBase, nextOutput);
 						} else {
 							err.status = 422;
 							err.data = 'POST failed with unknown error';
@@ -55,17 +55,17 @@ var Module = Arrow.API.extend({
 					.done(null, function(err) {
 						err.success = false;
 						err.caller = nextOutput.caller + '>' + err.caller + '>emailExistsResult>handleResetRequestResult';
-						Dtcarrow.Common.nextFail(nextBase, err);
+						twarrow.Common.nextFail(nextBase, err);
 					});
 			})
 			.done(null, function(err) {
 				err.caller = nextOutput.caller + '>' + err.caller + '>emailExistsResult>fail';
 				if (!hideError) {
 					err.success = false;
-					Dtcarrow.Common.nextFail(nextBase, err);
+					twarrow.Common.nextFail(nextBase, err);
 				} else {
 					err.success = true;
-					Dtcarrow.Common.nextSuccess(nextBase, err);
+					twarrow.Common.nextSuccess(nextBase, err);
 				}
 			});
 	}
@@ -78,12 +78,12 @@ function handleResetRequest(email) {
 	getUser(email)
 		.then(function(getUserResult) {
 			// Using the same clientApiKey concept to create a password reset key
-			var resetkey = Dtcarrow.Password.newApikey();
+			var resetkey = twarrow.Password.newApikey();
 			return updateResetkey(getUserResult.data, resetkey.data);
 		})
 		.then(function(updateResetKeyResult) {
 			// Reset keys expire after 24 hours
-			var clientResetkey = Dtcarrow.Api.encryptApikey(updateResetKeyResult.data.resetkey, 24);
+			var clientResetkey = twarrow.Api.encryptApikey(updateResetKeyResult.data.resetkey, 24);
 			if (!clientResetkey.success || clientResetkey.data.length < 64) {
 			 	deferred.reject({ success: false, status: 422, caller: 'handleResetRequest', 
 			   		data: 'encryptApikey returned an invalid clientApikey' });
@@ -91,9 +91,9 @@ function handleResetRequest(email) {
 			}
 
 			var body = 'Click this link to reset your password:'
-					 + '<br><a href="' + Dtcarrow.Constants.BASEWEBURL + '#/user/fulfillpasswordreset?'
+					 + '<br><a href="' + twarrow.Constants.BASEWEBURL + '#/user/fulfillpasswordreset?'
 					 + 'clientresetkey=' + clientResetkey.data + '">Reset Your Password</a>';
-			return Dtcarrow.Common.sendEmail(email, 'Resetting your TSR password', body)
+			return twarrow.Common.sendEmail(email, 'Resetting your TSR password', body)
 		})
 		.then(function(sendEmailResult) {
 			if (sendEmailResult.success) {

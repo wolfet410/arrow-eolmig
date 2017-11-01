@@ -1,6 +1,6 @@
 var Arrow = require('arrow'),
 	Q = require('q'),
-	Dtcarrow = require('dtcarrow');
+	twarrow = require('twarrow');
 
 var Module = Arrow.API.extend({
 	group: 'admin',
@@ -20,7 +20,7 @@ var Module = Arrow.API.extend({
 		} 
 		var user = { userId: req.params.userId };
 
-		Dtcarrow.User.userExists(req.params.userId)
+		twarrow.User.userExists(req.params.userId)
 			.then(function(userExistsResult) {
 				if (!userExistsResult.data) {
 					err.status = 404;
@@ -29,22 +29,22 @@ var Module = Arrow.API.extend({
 					throw err;
 				}
 
-				return Dtcarrow.AdminCoachPlayer.delete(user);
+				return twarrow.AdminCoachPlayer.delete(user);
 			})
 			.then(function(acpDeleteResult) {
-				return Dtcarrow.RoleRelationship.delete(user);
+				return twarrow.RoleRelationship.delete(user);
 			})
 			.then(function(rrDeleteResult) {
-				return Dtcarrow.User.delete(user);
+				return twarrow.User.delete(user);
 			})
 			.then(function(userDeleteResult) {
 				userDeleteResult.caller = nextOutput.caller + '>' + userDeleteResult.caller + '>userDeleteResult';
-				Dtcarrow.Common.nextSuccess(nextBase, userDeleteResult);
+				twarrow.Common.nextSuccess(nextBase, userDeleteResult);
 				return;
 			})
 			.done(null, function(err) {
 				err.caller = nextOutput.caller + '>' + err.caller + '>fail';
-				Dtcarrow.Common.nextFail(nextBase, err);
+				twarrow.Common.nextFail(nextBase, err);
 				return;
 			});
 	}
