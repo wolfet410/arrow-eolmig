@@ -4,7 +4,7 @@
   "dependencies": {
     "connector/appc.arrowdb": "*",
     "connector/appc.composite": "*",
-    "connector/appc.mysql": "^1.4.0"
+    "connector/appc.mysql": "*"
   },
   "cloud": {
     "guid": "59f8dd75b8f96f002ac6efba",
