@@ -29,7 +29,9 @@ module.exports = {
 	// usename is the key and the password is blank.  the other option is 'apikey' where the value of the
 	// APIKey header is the value of the key.  you can also set this to 'plugin' and define the key 'APIKeyAuthPlugin'
 	// which points to a file or a module that implements the authentication strategy
-	APIKeyAuthType: 'apikey',
+	APIKeyAuthType: 'plugin',
+	APIKeyAuthPlugin: './lib/plugin.js',
+	adminsecret: 'adminsecret',
 
 	// The number of milliseconds before timing out a request to the server.
 	timeout: 120000,

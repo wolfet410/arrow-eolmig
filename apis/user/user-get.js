@@ -35,7 +35,7 @@ var Module = Arrow.API.extend({
 				twarrow.User.read(req.params.userId);
 			})
 			.fail(function(err) {
-				console.warn(err);
+				twarrow.Common.warn(err);
 			});
 	}
 });  
