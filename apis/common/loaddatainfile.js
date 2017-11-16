@@ -66,7 +66,7 @@ function loadData(params) {
 			+ '" INTO TABLE ' + params.table
 			+ ' FIELDS TERMINATED BY ","'
 			+ ' OPTIONALLY ENCLOSED BY \'"\' '
-			+ ' LINES TERMINATED BY "\n"'
+			+ ' LINES TERMINATED BY "\r\n"'
 			+ ' IGNORE 2 LINES'
 			+ ' ' + params.fields;
 
